@@ -145,36 +145,40 @@ graph TB
 
 ```mermaid
 graph LR
-    subgraph "Protocol Buffer Messages"
-        ConnectReq[ConnectRequest<br/>• agent_id<br/>• token<br/>• timestamp<br/>• nonce<br/>• signature]
-        
-        TunnelReq[TunnelRequest<br/>• id<br/>• method<br/>• path<br/>• headers<br/>• body]
-        
-        TunnelResp[TunnelResponse<br/>• id<br/>• status<br/>• headers<br/>• body]
-        
-        TunnelData[TunnelData<br/>• id<br/>• chunk]
-        
-        TunnelClose[TunnelClose<br/>• id]
-        
-        ControlMsg[ControlMessage<br/>• type (PING/PONG)<br/>• payload]
-    end
-    
-    subgraph "Message Flow"
-        Agent[Agent] -->|1. ConnectRequest| Gateway[Gateway]
-        Gateway -->|2. TunnelRequest| Agent
-        Agent -->|3. TunnelResponse| Gateway
-        Agent -->|4. TunnelData| Gateway
-        Agent -->|5. TunnelClose| Gateway
-        
-        Agent <-->|Heartbeat| Gateway
-    end
-    
-    ConnectReq -.->|Authentication| Agent
-    TunnelReq -.->|Request Forwarding| Gateway
-    TunnelResp -.->|Response Headers| Agent
-    TunnelData -.->|Response Streaming| Agent
-    TunnelClose -.->|Connection Cleanup| Agent
-    ControlMsg -.->|Health Monitoring| Agent
+
+%% Subgraph: Protocol Buffer Messages
+subgraph "Protocol Buffer Messages"
+    ConnectReq["ConnectRequest\n• agent_id\n• token\n• timestamp\n• nonce\n• signature"]
+    TunnelReq["TunnelRequest\n• id\n• method\n• path\n• headers\n• body"]
+    TunnelResp["TunnelResponse\n• id\n• status\n• headers\n• body"]
+    TunnelData["TunnelData\n• id\n• chunk"]
+    TunnelClose["TunnelClose\n• id"]
+    ControlMsg["ControlMessage\n• type (PING/PONG)\n• payload"]
+end
+
+%% Subgraph: Message Flow
+subgraph "Message Flow"
+    Agent[Agent]
+    Gateway[Gateway]
+
+    Agent -->|1. ConnectRequest| Gateway
+    Gateway -->|2. TunnelRequest| Agent
+    Agent -->|3. TunnelResponse| Gateway
+    Agent -->|4. TunnelData| Gateway
+    Agent -->|5. TunnelClose| Gateway
+
+    Agent -->|PING| Gateway
+    Gateway -->|PONG| Agent
+end
+
+%% Reference arrows for message roles
+ConnectReq -.->|Authentication| Agent
+TunnelReq -.->|Request Forwarding| Gateway
+TunnelResp -.->|Response Headers| Agent
+TunnelData -.->|Response Streaming| Agent
+TunnelClose -.->|Connection Cleanup| Agent
+ControlMsg -.->|Health Monitoring| Agent
+
 ```
 
 ### 5. Error Handling Flow
