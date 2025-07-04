@@ -10,10 +10,11 @@ import (
 )
 
 var (
-	gatewayURL string
-	token      string
-	secret     string
-	agentID    string
+	gatewayURL  string
+	token       string
+	secret      string
+	agentID     string
+	portforward string
 )
 
 var connectCmd = &cobra.Command{
@@ -25,10 +26,11 @@ var connectCmd = &cobra.Command{
 
 		client := &connects.TunnelClient{
 			Cfg: connects.ClientConfig{
-				GatewayURL: gatewayURL,
-				Token:      token,
-				Secret:     secret,
-				AgentID:    agentID,
+				GatewayURL:  gatewayURL,
+				Token:       token,
+				Secret:      secret,
+				AgentID:     agentID,
+				Portforward: portforward,
 			},
 			Close:   make(chan struct{}),
 			Streams: make(map[string]net.Conn),
@@ -50,11 +52,13 @@ func init() {
 	connectCmd.Flags().StringVar(&token, "token", "", "Auth token")
 	connectCmd.Flags().StringVar(&secret, "secret", "", "HMAC secret key")
 	connectCmd.Flags().StringVar(&agentID, "id", "", "Agent ID")
+	connectCmd.Flags().StringVar(&portforward, "port", "", "local port to forward")
 
 	connectCmd.MarkFlagRequired("gateway")
 	connectCmd.MarkFlagRequired("token")
 	connectCmd.MarkFlagRequired("secret")
 	connectCmd.MarkFlagRequired("id")
+	connectCmd.MarkFlagRequired("port")
 
 	rootCmd.AddCommand(connectCmd)
 
