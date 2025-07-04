@@ -38,6 +38,10 @@ func (m *inFlightManager) Resolve(id string, resp *pb.TunnelResponse) {
 		req.writer.Header().Set(k, v)
 	}
 
+	if req.writer.Header().Get("Connection") == "" {
+		req.writer.Header().Set("Connection", "keep-alive")
+	}
+
 	// Write status code
 	req.writer.WriteHeader(int(resp.Status))
 
@@ -78,7 +82,16 @@ func (m *inFlightManager) Stream(id string, chunk []byte) {
 func (m *inFlightManager) GetDoneChan(id string) <-chan struct{} {
 	m.RLock()
 	defer m.RUnlock()
-	return m.requests[id].done
+
+	req, ok := m.requests[id]
+	if !ok {
+		log.Printf("GetDoneChan: unknown request ID %s", id)
+		ch := make(chan struct{})
+		close(ch)
+		return ch // return closed dummy channel
+	}
+
+	return req.done
 }
 
 func (m *inFlightManager) get(id string) (*inFlightRequest, bool) {
@@ -96,30 +109,52 @@ func (m *inFlightManager) get(id string) (*inFlightRequest, bool) {
 func (m *inFlightManager) StreamToClient(id string) {
 	req, ok := m.get(id)
 	if !ok {
+		log.Printf("StreamToClient: unknown request ID: %s", id)
 		return
 	}
 
+	// Recover from any panic during stream
 	defer func() {
 		if r := recover(); r != nil {
-			log.Printf("panic in StreamToClient: %v", r)
+			log.Printf("panic in StreamToClient [ID: %s]: %v", id, r)
 		}
 		m.Close(id)
 	}()
 
+	if req.writer == nil {
+		log.Printf("StreamToClient: nil ResponseWriter for ID: %s", id)
+		return
+	}
+
+	// Check for client disconnects
+	if cn, ok := req.writer.(http.CloseNotifier); ok {
+		go func() {
+			<-cn.CloseNotify()
+			log.Printf("StreamToClient: client disconnected early [ID: %s]", id)
+			m.Close(id)
+		}()
+	}
+
+	log.Printf("Starting stream to client [ID: %s]", id)
+
 	for chunk := range req.bodyBuf {
 		if req.writer == nil {
-			log.Printf("Writer is nil for stream %s", id)
+			log.Printf("StreamToClient: writer disappeared for ID: %s", id)
 			return
 		}
 
 		_, err := req.writer.Write(chunk)
 		if err != nil {
-			log.Printf("Write error: %v", err)
+			log.Printf("StreamToClient: write error for ID %s: %v", id, err)
 			return
 		}
 
 		if f, ok := req.writer.(http.Flusher); ok {
 			f.Flush()
 		}
+
+		log.Printf("StreamToClient: flushed %d bytes [ID: %s]", len(chunk), id)
 	}
+
+	log.Printf("StreamToClient: completed streaming [ID: %s]", id)
 }
