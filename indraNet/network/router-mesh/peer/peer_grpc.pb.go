@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             v5.29.2
-// source: proto/peer.proto
+// source: peer/peer.proto
 
 package tunnel
 
@@ -120,7 +120,7 @@ var Router_ServiceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 	},
-	Metadata: "proto/peer.proto",
+	Metadata: "peer/peer.proto",
 }
 
 const (
@@ -225,5 +225,5 @@ var Gateway_ServiceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 	},
-	Metadata: "proto/peer.proto",
+	Metadata: "peer/peer.proto",
 }
