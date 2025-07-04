@@ -19,8 +19,11 @@ func main() {
 	http.HandleFunc("/ws", client.WebsocketHandler)
 
 	server := &http.Server{
-		Addr:    ":8082",
-		Handler: mux,
+		Addr:         ":8082",
+		Handler:      mux,
+		ReadTimeout:  15 * time.Second,
+		WriteTimeout: 15 * time.Second,
+		IdleTimeout:  60 * time.Second,
 	}
 
 	go func() {
