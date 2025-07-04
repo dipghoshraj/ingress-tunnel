@@ -1,7 +1,6 @@
 package connects
 
 import (
-	"agent-tunnel/proto"
 	"bufio"
 	"context"
 	"fmt"
@@ -17,16 +16,16 @@ import (
 	protobuf "google.golang.org/protobuf/proto"
 )
 
-func (c *TunnelClient) handleMessage(ctx context.Context, msg *proto.Envelope) error {
+func (c *TunnelClient) handleMessage(ctx context.Context, msg *pb.Envelope) error {
 
 	switch m := msg.Message.(type) {
-	case *proto.Envelope_Request:
+	case *pb.Envelope_Request:
 		return c.handleConnect(ctx, m.Request)
-	case *proto.Envelope_Data:
+	case *pb.Envelope_Data:
 		return c.handleStream(ctx, m.Data)
-	case *proto.Envelope_Close:
+	case *pb.Envelope_Close:
 		return c.handleClose(ctx, m.Close)
-	case *proto.Envelope_Control:
+	case *pb.Envelope_Control:
 		log.Printf("[TUNNEL] control msg: %v", msg.Message)
 	default:
 		return fmt.Errorf("unknown message type: %T", m)
@@ -35,9 +34,9 @@ func (c *TunnelClient) handleMessage(ctx context.Context, msg *proto.Envelope) e
 	return nil
 }
 
-func (c *TunnelClient) handleConnect(_ context.Context, req *proto.TunnelRequest) error {
+func (c *TunnelClient) handleConnect(_ context.Context, req *pb.TunnelRequest) error {
 
-	conn, err := net.Dial("tcp", "localhost:5000")
+	conn, err := net.Dial("tcp", "localhost:"+c.Cfg.Portforward)
 	if err != nil {
 		return fmt.Errorf("dial [ERROR]: %w", err)
 	}
@@ -64,7 +63,7 @@ func (c *TunnelClient) handleConnect(_ context.Context, req *proto.TunnelRequest
 	return nil
 }
 
-func (c *TunnelClient) handleStream(_ context.Context, chunk *proto.TunnelData) error {
+func (c *TunnelClient) handleStream(_ context.Context, chunk *pb.TunnelData) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
@@ -78,7 +77,7 @@ func (c *TunnelClient) handleStream(_ context.Context, chunk *proto.TunnelData) 
 	return nil
 }
 
-func (c *TunnelClient) handleClose(_ context.Context, closeMsg *proto.TunnelClose) error {
+func (c *TunnelClient) handleClose(_ context.Context, closeMsg *pb.TunnelClose) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
@@ -103,14 +102,14 @@ func (c *TunnelClient) pipeToLocal(id string, conn net.Conn) error {
 		headers[k] = strings.Join(v, ", ")
 	}
 
-	respMsg := &proto.TunnelResponse{
+	respMsg := &pb.TunnelResponse{
 		Id:      id,
 		Status:  int32(resp.StatusCode),
 		Headers: headers,
 	}
 
-	env := &proto.Envelope{
-		Message: &proto.Envelope_Response{Response: respMsg},
+	env := &pb.Envelope{
+		Message: &pb.Envelope_Response{Response: respMsg},
 	}
 
 	_ = c.send_envalope(env)
@@ -122,9 +121,9 @@ func (c *TunnelClient) pipeToLocal(id string, conn net.Conn) error {
 			if err == io.EOF {
 				log.Printf("Stream %s reached EOF", id)
 
-				closeMsg := &proto.TunnelClose{Id: id}
-				env := &proto.Envelope{
-					Message: &proto.Envelope_Close{Close: closeMsg},
+				closeMsg := &pb.TunnelClose{Id: id}
+				env := &pb.Envelope{
+					Message: &pb.Envelope_Close{Close: closeMsg},
 				}
 				_ = c.send_envalope(env)
 
@@ -134,13 +133,13 @@ func (c *TunnelClient) pipeToLocal(id string, conn net.Conn) error {
 			return err
 		}
 
-		dataMsg := &proto.TunnelData{
+		dataMsg := &pb.TunnelData{
 			Id:    id,
 			Chunk: buf[:n],
 		}
 
-		env := &proto.Envelope{
-			Message: &proto.Envelope_Data{Data: dataMsg},
+		env := &pb.Envelope{
+			Message: &pb.Envelope_Data{Data: dataMsg},
 		}
 
 		_ = c.send_envalope(env)
