@@ -19,7 +19,7 @@ func main() {
 	http.HandleFunc("/ws", client.WebsocketHandler)
 
 	server := &http.Server{
-		Addr:         ":80",
+		Addr:         ":8080",
 		Handler:      mux,
 		ReadTimeout:  15 * time.Second,
 		WriteTimeout: 15 * time.Second,
@@ -27,7 +27,7 @@ func main() {
 	}
 
 	go func() {
-		log.Println("Server started at :80")
+		log.Println("Server started at :8080")
 		if err := server.ListenAndServe(); err != nil {
 			log.Fatalf("Failed to start HTTP server: %v", err)
 		}
