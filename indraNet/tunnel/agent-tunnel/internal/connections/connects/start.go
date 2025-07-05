@@ -9,6 +9,8 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
+
+	"agent-tunnel/internal/persist"
 )
 
 func (c *TunnelClient) Start(ctx context.Context) error {
@@ -28,7 +30,11 @@ func (c *TunnelClient) Start(ctx context.Context) error {
 }
 
 func (c *TunnelClient) runSessions(ctx context.Context) error {
-	conn, _, err := websocket.DefaultDialer.DialContext(ctx, c.Cfg.GatewayURL, nil)
+
+	wsurl := fmt.Sprintf("ws://%s:50051/ws", c.Cfg.GatewayURL)
+	conn, _, err := websocket.DefaultDialer.DialContext(ctx, wsurl, nil)
+
+	persist.SetAgent(c.Cfg.AgentID, c.Cfg.GatewayURL)
 
 	if err != nil {
 		return fmt.Errorf("connect to gateway: %w", err)
@@ -38,6 +44,7 @@ func (c *TunnelClient) runSessions(ctx context.Context) error {
 		log.Printf("WebSocket closed: code=%d, text=%s", code, text)
 		return nil
 	})
+
 	c.Streams = make(map[string]net.Conn)
 
 	defer conn.Close()
@@ -46,7 +53,7 @@ func (c *TunnelClient) runSessions(ctx context.Context) error {
 		return fmt.Errorf("handshake failed: %w", err)
 	}
 
-	log.Printf("Connected to gateway: %s", c.Cfg.GatewayURL)
+	log.Printf("Connected to gateway: %s", wsurl)
 
 	msgs := make(chan *proto.Envelope)
 	errs := make(chan error, 2)
