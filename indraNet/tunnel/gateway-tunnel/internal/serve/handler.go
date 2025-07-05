@@ -59,6 +59,7 @@ func HandleRequest(w http.ResponseWriter, r *http.Request) {
 	case agent.SendChan <- tunnelReq:
 		log.Printf("Sent request %s to agent %s", id, appID)
 	default:
+		log.Printf("Agent %s is busy, cannot send request %s", appID, id)
 		http.Error(w, "Agent busy", http.StatusTooManyRequests)
 		inflight.InFlightManager.Close(id)
 		return
@@ -66,10 +67,12 @@ func HandleRequest(w http.ResponseWriter, r *http.Request) {
 
 	select {
 	case <-time.After(10 * time.Second):
+		log.Printf("Timeout waiting for response for request %s", id)
 		inflight.InFlightManager.Close(id)
 		http.Error(w, "Timeout", http.StatusGatewayTimeout)
 	case <-inflight.InFlightManager.GetDoneChan(id):
 		// Response already written
+		log.Printf("Response for request %s already handled", id)
 	}
 
 }

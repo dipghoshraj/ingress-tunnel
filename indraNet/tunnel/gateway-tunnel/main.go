@@ -19,20 +19,23 @@ func main() {
 	http.HandleFunc("/ws", client.WebsocketHandler)
 
 	server := &http.Server{
-		Addr:    ":8082",
-		Handler: mux,
+		Addr:         ":8080",
+		Handler:      mux,
+		ReadTimeout:  15 * time.Second,
+		WriteTimeout: 15 * time.Second,
+		IdleTimeout:  60 * time.Second,
 	}
 
 	go func() {
-		log.Println("Server started at :8082")
+		log.Println("Server started at :8080")
 		if err := server.ListenAndServe(); err != nil {
 			log.Fatalf("Failed to start HTTP server: %v", err)
 		}
 	}()
 
 	go func() {
-		fmt.Println("Server started at :8080")
-		log.Fatal(http.ListenAndServe(":8080", nil))
+		fmt.Println("Server started at :50051")
+		log.Fatal(http.ListenAndServe(":50051", nil))
 	}()
 
 	quit := make(chan os.Signal, 1)
