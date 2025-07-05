@@ -72,6 +72,7 @@ func HandleRequest(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Timeout", http.StatusGatewayTimeout)
 	case <-inflight.InFlightManager.GetDoneChan(id):
 		// Response already written
+		log.Printf("Response for request %s already handled", id)
 	}
 
 }

@@ -59,7 +59,6 @@ func (m *inFlightManager) Close(id string) {
 	if ok {
 		delete(m.requests, id)
 		close(req.bodyBuf)
-		close(req.done)
 	}
 	m.Unlock()
 }
@@ -131,6 +130,7 @@ func (m *inFlightManager) StreamToClient(id string) {
 		go func() {
 			<-cn.CloseNotify()
 			log.Printf("StreamToClient: client disconnected early [ID: %s]", id)
+			close(req.done)
 			m.Close(id)
 		}()
 	}
