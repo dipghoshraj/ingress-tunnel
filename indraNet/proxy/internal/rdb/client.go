@@ -2,16 +2,17 @@ package rdb
 
 import (
 	"context"
+	"cosmo-proxy/internal"
 	"fmt"
 
-	"cosmo-proxy/internal"
-
+	lru "github.com/hashicorp/golang-lru"
 	"github.com/redis/go-redis/v9"
 )
 
 var (
-	client *redis.Client
-	ctx    = context.Background()
+	client   *redis.Client
+	ctx      = context.Background()
+	lruCache *lru.Cache
 )
 
 // Init initializes the Redis client with the provided address and password.
@@ -23,6 +24,13 @@ func Init() error {
 		DB:       0,                                               // Use default DB
 	})
 
+	lruCache, err := lru.New(100)
+	if err != nil {
+		return fmt.Errorf("failed to create LRU cache: %v", err)
+	}
+
+	lruCache = lruCache
+
 	// Test the connection
 	if err := client.Ping(ctx).Err(); err != nil {
 		return fmt.Errorf("failed to connect to Redis: %v", err)
@@ -30,11 +38,11 @@ func Init() error {
 	return nil
 }
 
-func GetClient() *redis.Client {
-	if client == nil {
+func GetClient() (*redis.Client, *lru.Cache) {
+	if client == nil && lruCache == nil {
 		if err := Init(); err != nil {
 			panic(fmt.Sprintf("Failed to initialize Redis client: %v", err))
 		}
 	}
-	return client
+	return client, lruCache
 }
