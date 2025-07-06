@@ -24,15 +24,10 @@ func Init() error {
 		DB:       0,                                               // Use default DB
 	})
 
-	lruCache, err := lru.New(100)
-	if err != nil {
-		return fmt.Errorf("failed to create LRU cache: %v", err)
-	}
+	newCache, err := lru.New(100)
+	lruCache = newCache
 
-	lruCache = lruCache
-
-	// Test the connection
-	if err := client.Ping(ctx).Err(); err != nil {
+	if err = client.Ping(ctx).Err(); err != nil {
 		return fmt.Errorf("failed to connect to Redis: %v", err)
 	}
 	return nil
