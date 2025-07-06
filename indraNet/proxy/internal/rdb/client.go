@@ -15,6 +15,12 @@ var (
 	lruCache *lru.Cache
 )
 
+type Cache struct {
+	RedisClient *redis.Client
+	MemoryCache *lru.Cache
+	Ctx         context.Context
+}
+
 // Init initializes the Redis client with the provided address and password.
 
 func Init() error {
@@ -36,11 +42,15 @@ func Init() error {
 	return nil
 }
 
-func GetClient() (*redis.Client, *lru.Cache) {
+func GetClient() Cache {
 	if client == nil && lruCache == nil {
 		if err := Init(); err != nil {
 			panic(fmt.Sprintf("Failed to initialize Redis client: %v", err))
 		}
 	}
-	return client, lruCache
+	return Cache{
+		RedisClient: client,
+		MemoryCache: lruCache,
+		Ctx:         ctx,
+	}
 }
