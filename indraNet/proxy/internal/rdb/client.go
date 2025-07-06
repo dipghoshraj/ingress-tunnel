@@ -2,7 +2,7 @@ package rdb
 
 import (
 	"context"
-	"cosmo-proxy/internal"
+	"cosmo-proxy/config"
 	"fmt"
 
 	lru "github.com/hashicorp/golang-lru"
@@ -19,12 +19,15 @@ var (
 
 func Init() error {
 	client = redis.NewClient(&redis.Options{
-		Addr:     internal.GetEnv("REDIS_ADDR", "localhost:6379"), // Replace with your Redis server address
-		Password: internal.GetEnv("REDIS_PASSWORD", ""),           // No password set
-		DB:       0,                                               // Use default DB
+		Addr:     config.GetEnv("REDIS_ADDR", "localhost:6379"), // Replace with your Redis server address
+		Password: config.GetEnv("REDIS_PASSWORD", ""),           // No password set
+		DB:       0,                                             // Use default DB
 	})
 
 	newCache, err := lru.New(100)
+	if err != nil {
+		return fmt.Errorf("failed to create LRU cache: %v", err)
+	}
 	lruCache = newCache
 
 	if err = client.Ping(ctx).Err(); err != nil {
