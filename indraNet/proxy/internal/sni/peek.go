@@ -8,7 +8,8 @@ func PeekSNI(conn net.Conn) (string, net.Conn, error) {
 	if err != nil {
 		return "", nil, err
 	}
-	serverName, err := ExtractSNIFromRequest(buf[:n])
+	serverName, err := ExtractHostFromHTTPRequest(buf[:n])
+	// serverName, err := ExtractSNIFromRequest(buf[:n]) this is for TLS SNI extraction in current context request is flowing over HTTP
 	if err != nil {
 		return "", nil, err
 	}
