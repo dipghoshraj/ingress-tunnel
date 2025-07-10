@@ -1,4 +1,4 @@
-package internal
+package sni
 
 // Package internal provides a ConnBuffer type that wraps a net.Conn
 // and allows reading from a buffer before falling back to the connection.
