@@ -10,7 +10,7 @@ import (
 func main() {
 	fmt.Println("This is the main entry point for the indraNet reverse proxy.")
 
-	ln, err := net.Listen("tcp", ":443")
+	ln, err := net.Listen("tcp", ":80")
 	if err != nil {
 		fmt.Printf("Error starting server: %v\n", err)
 		return
@@ -25,5 +25,4 @@ func main() {
 		go internal.HandleConnection(conn)
 		log.Printf("Accepted connection from %s", conn.RemoteAddr())
 	}
-
 }

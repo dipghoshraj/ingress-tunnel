@@ -21,6 +21,7 @@ func GetRouter(addr string) (string, error) {
 	cachedAddr, found := cache.MemoryCache.Get(addr)
 	if found {
 		log.Printf("Cache hit for address: %s", addr)
+		fmt.Println("Cache hit for address:", addr)
 		return cachedAddr.(string), nil
 	}
 
