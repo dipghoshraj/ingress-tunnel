@@ -22,10 +22,10 @@ type Cache struct {
 }
 
 // Init initializes the Redis client with the provided address and password.
-
+// This section is moving towards decentralized configuration management. So we will ake this config and RDB deperecated in the future.
 func Init() error {
 	client = redis.NewClient(&redis.Options{
-		Addr:     config.GetEnv("REDIS_ADDR", "localhost:6379"), // Replace with your Redis server address
+		Addr:     config.GetEnv("REDIS_ADDR", "localhost:6379"), // Replace with your Redis server address 
 		Password: config.GetEnv("REDIS_PASSWORD", ""),           // No password set
 		DB:       0,                                             // Use default DB
 	})
