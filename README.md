@@ -2,6 +2,21 @@
 
 > **Tunnel, route, and expose your apps — securely and simply. Built for self-hosters, edge compute, and dev teams.**
 
+<!-- 📢 Announcement Section Start -->
+## 📢 Announcement
+
+We’re excited to share that a **new and more secure version of Agnistack** is currently in development and will be released in the coming months!  
+This update will include **enhanced security**, **richer observability**, and **powerful management features** — all while staying true to our open-source roots.
+
+Stay tuned for updates by watching this repo or following us in discord [https://discordapp.com/channels/1273907702355066961/1393671943286165665](#).
+<!-- 📢 Announcement Section End -->
+
+Agnistack is a lightweight, self-hostable, distributed ingress platform that lets you expose services running behind NAT/firewalls using outbound tunnels — without port forwarding, complex VPNs, or cloud lock-in.
+
+This is the **Open Source Core** of Agnistack — a minimal but working version designed for developers and builders.
+
+---
+
 Agnistack is a lightweight, self-hostable, distributed ingress platform that lets you expose services running behind NAT/firewalls using outbound tunnels — without port forwarding, complex VPNs, or cloud lock-in.
 
 This is the **Open Source Core** of Agnistack — a minimal but working version designed for developers and builders.
