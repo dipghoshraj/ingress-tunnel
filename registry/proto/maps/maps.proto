@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+
+package maps.v1;
+
+option go_package = "github.com/dipghoshraj/ingress-tunnel/registry/proto/";
+
+
+// protoc --go_out=. --go-grpc_out=../. --go_opt=paths=source_relative --go-grpc_opt=paths=source_relative proto/maps/maps.proto
+service Maps {
+    rpc GatewaybyRegion(GetGatewaybyRegion) returns (GatewayDetails);
+    rpc RegisterAgent(AgentRegistry) returns (AgentRegistry);
+}
+
+
+message AgentRegistry {
+    string agent_id = 1;
+    string agent_name = 2;
+    string agent_domain = 3;
+    string region = 4;
+    int64 port = 5;
+    string status = 6;
+    int64 ttl = 7;
+    string gateway_domain = 8;
+    string gateway_id = 9;
+    string gateway_ip = 10;
+}
+
+message GatewayRegistry {
+    string gateway_id = 1;
+    string gateway_name = 2;
+    string gateway_domain = 3;
+    string gateway_ip = 4;
+    string region = 5;
+    string status = 6;
+    int64 ttl = 7;
+}
+
+message GatewayDetails {
+    string gateway_id = 1;
+    string gateway_name = 2;
+    string gateway_domain = 3;
+    string gateway_ip = 4;
+}
+
+message AgentDetails {
+    string agent_id = 1;
+    string agent_name = 2;
+    string agent_domain = 3;
+    string region = 4;
+    int64 port = 5;
+    string status = 6;
+    GatewayDetails gateway_details = 7;
+}
+
+message GetGatewaybyRegion {
+    string region = 1;
+}
