@@ -32,3 +32,7 @@ go.work.sum
 # .vscode/
 
 *.py
+
+*/bin/*
+indraNet/tunnel/agent-tunnel/bin/agniagent
+indraNet/tunnel/agent-tunnel/bin
