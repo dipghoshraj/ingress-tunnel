@@ -1,5 +1,5 @@
 # This service is not working right now, as to make it more efficient and secure, I had to tear down the identity and registry module.
-# I am on vacation till November. After that, I will fix this till then, if anyone wants to use it, you have to fix this registry and identity.
+# I am in festive mode till November. After that, I will fix this. Till then, if anyone wants to use it, you have to fix this registry and identity.
 
 # Agnistack Ingress
 
