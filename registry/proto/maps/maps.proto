@@ -8,51 +8,56 @@ option go_package = "github.com/dipghoshraj/ingress-tunnel/registry/proto/";
 
 // protoc --go_out=. --go-grpc_out=../. --go_opt=paths=source_relative --go-grpc_opt=paths=source_relative proto/maps/maps.proto
 service Maps {
-    rpc GatewaybyRegion(GetGatewaybyRegion) returns (GatewayDetails);
-    rpc RegisterAgent(AgentRegistry) returns (AgentRegistry);
+    // rpc GatewaybyRegion(GetGatewaybyRegion) returns (GatewayDetails);
+    // rpc RegisterAgent(AgentRegistry) returns (AgentRegistry);
+
+    rpc SetGateway(GatewayPutRequest) returns  (GatewayResponse);
+    rpc SetAgents(AgentConnectionRequest) returns (AgentResponse);
+    rpc GetRegionalGateway(GatewayHandshak) returns (GatewayResponse);
+    rpc GetProxyGateway(GatewayProxy) returns (GatewayResponse);
 }
 
 
-message AgentRegistry {
-    string agent_id = 1;
-    string agent_name = 2;
-    string agent_domain = 3;
-    string region = 4;
-    int64 port = 5;
-    string status = 6;
-    int64 ttl = 7;
-    string gateway_domain = 8;
-    string gateway_id = 9;
-    string gateway_ip = 10;
-}
-
-message GatewayRegistry {
-    string gateway_id = 1;
-    string gateway_name = 2;
-    string gateway_domain = 3;
-    string gateway_ip = 4;
-    string region = 5;
-    string status = 6;
-    int64 ttl = 7;
-}
-
-message GatewayDetails {
-    string gateway_id = 1;
-    string gateway_name = 2;
-    string gateway_domain = 3;
-    string gateway_ip = 4;
-}
-
-message AgentDetails {
-    string agent_id = 1;
-    string agent_name = 2;
-    string agent_domain = 3;
-    string region = 4;
-    int64 port = 5;
-    string status = 6;
-    GatewayDetails gateway_details = 7;
-}
-
-message GetGatewaybyRegion {
+message GatewayPutRequest {
     string region = 1;
+    string gateway_ip = 2;
+    string gateway_domain = 3
+    int32 gateway_port = 4;
+    Capacity capacity = 5;
+}
+
+message Capacity {
+    int32 cpu = 1;
+    int32 memory = 2;
+    int32 storage = 3;
+    int32 bandwidth = 4;
+}
+
+message GatewayResponse {
+    string gateway_id = 1;
+    string gateway_ip = 2;
+    strign gatway_domain= 3;
+}
+
+message AgentConnectionRequest {
+    string domain = 1 ;
+    string gateway_id = 2;
+    string region = 3;
+    string agent_domain = 4;
+}
+
+message AgentResponse {
+    string agent_id = 1;
+    string agent_domain =2;
+    string gateway_id=3;
+    string gateway_doamin = 4;
+    Capacity capacity = 5;
+}
+
+message GatewayHandshak {
+    string region = 1;
+}
+
+message GatewayProxy {
+    string agent_domain = 1;
 }
