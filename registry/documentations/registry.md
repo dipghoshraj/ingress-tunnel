@@ -49,31 +49,35 @@ The **Central Registry Service (CRS)** will replace direct Redis interactions wi
 
 ```mermaid
 flowchart TD
+    %% Agents and Gateway
+    A[Agents] -->|Register / Renew| CRS["Registry API (gRPC + Binary RPC)"]
+    B[Gateway] -->|Register / Renew| CRS
 
-    A[Agents] -->|Register/Renew| CRS["Registry API (gRPC + binary RPC)"]
-    B[gateway] --->|Register/Renew| CRS
-
+    %% Registry to KV
     CRS --> KV[Partitioned KV Cluster]
-
-
-    subgraph Cluster
+    
+    %% KV Cluster Nodes
+    subgraph Cluster [KV Cluster Nodes]
+        direction TB
         Node1["Node 1
-        (Partition A, B)"]
+        (Partitions A & B)"]
         Node2["Node 2
-        (Partition A, B)"]
-        Node3["Node 2 
-        (Partition A, B)"]
+        (Partitions A & B)"]
+        Node3["Node 3
+        (Partitions A & B)"]
     end
 
     KV --> Cluster
 
-    subgraph Raft
-        R1[R=3 
-        replicas per partition]
-        R2[R=3 
-        replicas per partition]
-        R3[R=3 
-        replicas per partition]
+    %% Raft Replicas
+    subgraph Raft [Raft Replication]
+        direction TB
+        R1["R = 3
+        Replicas per partition"]
+        R2["R = 3
+        Replicas per partition"]
+        R3["R = 3
+        Replicas per partition"]
     end
 
     Node1 --> R1
