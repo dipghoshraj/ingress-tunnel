@@ -8,9 +8,6 @@ option go_package = "github.com/dipghoshraj/ingress-tunnel/registry/proto/";
 
 // protoc --go_out=. --go-grpc_out=../. --go_opt=paths=source_relative --go-grpc_opt=paths=source_relative proto/maps/maps.proto
 service Maps {
-    // rpc GatewaybyRegion(GetGatewaybyRegion) returns (GatewayDetails);
-    // rpc RegisterAgent(AgentRegistry) returns (AgentRegistry);
-
     rpc SetGateway(GatewayPutRequest) returns  (GatewayResponse);
     rpc SetAgents(AgentConnectionRequest) returns (AgentResponse);
     rpc GetRegionalGateway(GatewayHandshak) returns (GatewayResponse);
@@ -21,7 +18,7 @@ service Maps {
 message GatewayPutRequest {
     string region = 1;
     string gateway_ip = 2;
-    string gateway_domain = 3
+    string gateway_domain = 3;
     int32 gateway_port = 4;
     Capacity capacity = 5;
 }
@@ -36,7 +33,7 @@ message Capacity {
 message GatewayResponse {
     string gateway_id = 1;
     string gateway_ip = 2;
-    strign gatway_domain= 3;
+    string gateway_domain = 3;
 }
 
 message AgentConnectionRequest {
