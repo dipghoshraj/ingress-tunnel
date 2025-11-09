@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             v5.29.2
-// source: proto/maps/maps.proto
+// source: proto/maps.proto
 
 package maps
 
@@ -235,5 +235,5 @@ var Maps_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "proto/maps/maps.proto",
+	Metadata: "proto/maps.proto",
 }
