@@ -6,6 +6,10 @@ import (
 	mapper "github.com/dipghoshraj/ingress-tunnel/registry/proto"
 )
 
-func (rpc *RPCMap) SetAgents(ctx context.Context, req *mapper.AgentConnectionRequest) (*mapper.AgentResponse, error) {
+func (rpc *RPCMap) RegisterAgent(ctx context.Context, req *mapper.AgentConnectionRequest) (*mapper.AgentResponse, error) {
 	return &mapper.AgentResponse{}, nil
+}
+
+func (rpc *RPCMap) ResolveGatewayForAgent(ctx context.Context, req *mapper.GatewayHandshak) (*mapper.GatewayResponse, error) {
+	return &mapper.GatewayResponse{}, nil
 }

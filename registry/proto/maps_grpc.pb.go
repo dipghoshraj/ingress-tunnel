@@ -19,10 +19,10 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Maps_SetGateway_FullMethodName         = "/maps.Maps/SetGateway"
-	Maps_SetAgents_FullMethodName          = "/maps.Maps/SetAgents"
-	Maps_GetRegionalGateway_FullMethodName = "/maps.Maps/GetRegionalGateway"
-	Maps_GetProxyGateway_FullMethodName    = "/maps.Maps/GetProxyGateway"
+	Maps_RegisterGateway_FullMethodName        = "/maps.Maps/RegisterGateway"
+	Maps_RegisterAgent_FullMethodName          = "/maps.Maps/RegisterAgent"
+	Maps_ResolveGatewayForAgent_FullMethodName = "/maps.Maps/ResolveGatewayForAgent"
+	Maps_ResolveGatewayForProxy_FullMethodName = "/maps.Maps/ResolveGatewayForProxy"
 )
 
 // MapsClient is the client API for Maps service.
@@ -31,10 +31,10 @@ const (
 //
 // protoc --go_out=. --go-grpc_out=../. --go_opt=paths=source_relative --go-grpc_opt=paths=source_relative proto/maps/maps.proto
 type MapsClient interface {
-	SetGateway(ctx context.Context, in *GatewayPutRequest, opts ...grpc.CallOption) (*GatewayResponse, error)
-	SetAgents(ctx context.Context, in *AgentConnectionRequest, opts ...grpc.CallOption) (*AgentResponse, error)
-	GetRegionalGateway(ctx context.Context, in *GatewayHandshak, opts ...grpc.CallOption) (*GatewayResponse, error)
-	GetProxyGateway(ctx context.Context, in *GatewayProxy, opts ...grpc.CallOption) (*GatewayResponse, error)
+	RegisterGateway(ctx context.Context, in *GatewayPutRequest, opts ...grpc.CallOption) (*GatewayResponse, error)
+	RegisterAgent(ctx context.Context, in *AgentConnectionRequest, opts ...grpc.CallOption) (*AgentResponse, error)
+	ResolveGatewayForAgent(ctx context.Context, in *GatewayHandshak, opts ...grpc.CallOption) (*GatewayResponse, error)
+	ResolveGatewayForProxy(ctx context.Context, in *GatewayProxy, opts ...grpc.CallOption) (*GatewayResponse, error)
 }
 
 type mapsClient struct {
@@ -45,40 +45,40 @@ func NewMapsClient(cc grpc.ClientConnInterface) MapsClient {
 	return &mapsClient{cc}
 }
 
-func (c *mapsClient) SetGateway(ctx context.Context, in *GatewayPutRequest, opts ...grpc.CallOption) (*GatewayResponse, error) {
+func (c *mapsClient) RegisterGateway(ctx context.Context, in *GatewayPutRequest, opts ...grpc.CallOption) (*GatewayResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GatewayResponse)
-	err := c.cc.Invoke(ctx, Maps_SetGateway_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, Maps_RegisterGateway_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *mapsClient) SetAgents(ctx context.Context, in *AgentConnectionRequest, opts ...grpc.CallOption) (*AgentResponse, error) {
+func (c *mapsClient) RegisterAgent(ctx context.Context, in *AgentConnectionRequest, opts ...grpc.CallOption) (*AgentResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(AgentResponse)
-	err := c.cc.Invoke(ctx, Maps_SetAgents_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, Maps_RegisterAgent_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *mapsClient) GetRegionalGateway(ctx context.Context, in *GatewayHandshak, opts ...grpc.CallOption) (*GatewayResponse, error) {
+func (c *mapsClient) ResolveGatewayForAgent(ctx context.Context, in *GatewayHandshak, opts ...grpc.CallOption) (*GatewayResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GatewayResponse)
-	err := c.cc.Invoke(ctx, Maps_GetRegionalGateway_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, Maps_ResolveGatewayForAgent_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *mapsClient) GetProxyGateway(ctx context.Context, in *GatewayProxy, opts ...grpc.CallOption) (*GatewayResponse, error) {
+func (c *mapsClient) ResolveGatewayForProxy(ctx context.Context, in *GatewayProxy, opts ...grpc.CallOption) (*GatewayResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GatewayResponse)
-	err := c.cc.Invoke(ctx, Maps_GetProxyGateway_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, Maps_ResolveGatewayForProxy_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -91,10 +91,10 @@ func (c *mapsClient) GetProxyGateway(ctx context.Context, in *GatewayProxy, opts
 //
 // protoc --go_out=. --go-grpc_out=../. --go_opt=paths=source_relative --go-grpc_opt=paths=source_relative proto/maps/maps.proto
 type MapsServer interface {
-	SetGateway(context.Context, *GatewayPutRequest) (*GatewayResponse, error)
-	SetAgents(context.Context, *AgentConnectionRequest) (*AgentResponse, error)
-	GetRegionalGateway(context.Context, *GatewayHandshak) (*GatewayResponse, error)
-	GetProxyGateway(context.Context, *GatewayProxy) (*GatewayResponse, error)
+	RegisterGateway(context.Context, *GatewayPutRequest) (*GatewayResponse, error)
+	RegisterAgent(context.Context, *AgentConnectionRequest) (*AgentResponse, error)
+	ResolveGatewayForAgent(context.Context, *GatewayHandshak) (*GatewayResponse, error)
+	ResolveGatewayForProxy(context.Context, *GatewayProxy) (*GatewayResponse, error)
 	mustEmbedUnimplementedMapsServer()
 }
 
@@ -105,17 +105,17 @@ type MapsServer interface {
 // pointer dereference when methods are called.
 type UnimplementedMapsServer struct{}
 
-func (UnimplementedMapsServer) SetGateway(context.Context, *GatewayPutRequest) (*GatewayResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SetGateway not implemented")
+func (UnimplementedMapsServer) RegisterGateway(context.Context, *GatewayPutRequest) (*GatewayResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RegisterGateway not implemented")
 }
-func (UnimplementedMapsServer) SetAgents(context.Context, *AgentConnectionRequest) (*AgentResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SetAgents not implemented")
+func (UnimplementedMapsServer) RegisterAgent(context.Context, *AgentConnectionRequest) (*AgentResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RegisterAgent not implemented")
 }
-func (UnimplementedMapsServer) GetRegionalGateway(context.Context, *GatewayHandshak) (*GatewayResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetRegionalGateway not implemented")
+func (UnimplementedMapsServer) ResolveGatewayForAgent(context.Context, *GatewayHandshak) (*GatewayResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ResolveGatewayForAgent not implemented")
 }
-func (UnimplementedMapsServer) GetProxyGateway(context.Context, *GatewayProxy) (*GatewayResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetProxyGateway not implemented")
+func (UnimplementedMapsServer) ResolveGatewayForProxy(context.Context, *GatewayProxy) (*GatewayResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ResolveGatewayForProxy not implemented")
 }
 func (UnimplementedMapsServer) mustEmbedUnimplementedMapsServer() {}
 func (UnimplementedMapsServer) testEmbeddedByValue()              {}
@@ -138,74 +138,74 @@ func RegisterMapsServer(s grpc.ServiceRegistrar, srv MapsServer) {
 	s.RegisterService(&Maps_ServiceDesc, srv)
 }
 
-func _Maps_SetGateway_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Maps_RegisterGateway_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GatewayPutRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MapsServer).SetGateway(ctx, in)
+		return srv.(MapsServer).RegisterGateway(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Maps_SetGateway_FullMethodName,
+		FullMethod: Maps_RegisterGateway_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MapsServer).SetGateway(ctx, req.(*GatewayPutRequest))
+		return srv.(MapsServer).RegisterGateway(ctx, req.(*GatewayPutRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Maps_SetAgents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Maps_RegisterAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AgentConnectionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MapsServer).SetAgents(ctx, in)
+		return srv.(MapsServer).RegisterAgent(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Maps_SetAgents_FullMethodName,
+		FullMethod: Maps_RegisterAgent_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MapsServer).SetAgents(ctx, req.(*AgentConnectionRequest))
+		return srv.(MapsServer).RegisterAgent(ctx, req.(*AgentConnectionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Maps_GetRegionalGateway_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Maps_ResolveGatewayForAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GatewayHandshak)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MapsServer).GetRegionalGateway(ctx, in)
+		return srv.(MapsServer).ResolveGatewayForAgent(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Maps_GetRegionalGateway_FullMethodName,
+		FullMethod: Maps_ResolveGatewayForAgent_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MapsServer).GetRegionalGateway(ctx, req.(*GatewayHandshak))
+		return srv.(MapsServer).ResolveGatewayForAgent(ctx, req.(*GatewayHandshak))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Maps_GetProxyGateway_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Maps_ResolveGatewayForProxy_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GatewayProxy)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MapsServer).GetProxyGateway(ctx, in)
+		return srv.(MapsServer).ResolveGatewayForProxy(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Maps_GetProxyGateway_FullMethodName,
+		FullMethod: Maps_ResolveGatewayForProxy_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MapsServer).GetProxyGateway(ctx, req.(*GatewayProxy))
+		return srv.(MapsServer).ResolveGatewayForProxy(ctx, req.(*GatewayProxy))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -218,20 +218,20 @@ var Maps_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*MapsServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "SetGateway",
-			Handler:    _Maps_SetGateway_Handler,
+			MethodName: "RegisterGateway",
+			Handler:    _Maps_RegisterGateway_Handler,
 		},
 		{
-			MethodName: "SetAgents",
-			Handler:    _Maps_SetAgents_Handler,
+			MethodName: "RegisterAgent",
+			Handler:    _Maps_RegisterAgent_Handler,
 		},
 		{
-			MethodName: "GetRegionalGateway",
-			Handler:    _Maps_GetRegionalGateway_Handler,
+			MethodName: "ResolveGatewayForAgent",
+			Handler:    _Maps_ResolveGatewayForAgent_Handler,
 		},
 		{
-			MethodName: "GetProxyGateway",
-			Handler:    _Maps_GetProxyGateway_Handler,
+			MethodName: "ResolveGatewayForProxy",
+			Handler:    _Maps_ResolveGatewayForProxy_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
