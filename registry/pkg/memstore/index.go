@@ -26,7 +26,9 @@ type GatewayRankItem struct {
 	ID   string
 }
 
-func (a GatewayRankItem) Less(b btree.Item) bool {
-	// Higher rank = appears first
-	return a.Rank > b.(*GatewayRankItem).Rank
+func (a *GatewayRankItem) Less(b btree.Item) bool {
+	if a.Rank == b.(*GatewayRankItem).Rank {
+		return a.ID < b.(*GatewayRankItem).ID
+	}
+	return a.Rank < b.(*GatewayRankItem).Rank
 }
