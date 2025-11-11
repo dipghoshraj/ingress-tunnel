@@ -2,7 +2,7 @@ package memstore
 
 import "github.com/google/btree"
 
-func (mem *MemStore) AddGateway(region string, gateway *GatewayData) {
+func (mem *MemStore) AddGateway(region string, gateway *GatewayData) GatewayData {
 	data := mem.RegionExist(region)
 
 	data.mu.Lock()
@@ -16,12 +16,16 @@ func (mem *MemStore) AddGateway(region string, gateway *GatewayData) {
 			Rank: oldRank,
 			ID:   gateway.GatewayDomain,
 		})
+
+		return *gatewayData
 	}
 	data.Gateways[gateway.GatewayDomain] = gateway
 	data.ranked.ReplaceOrInsert(&GatewayRankItem{
 		Rank: gateway.Capacity.Rank(),
 		ID:   gateway.GatewayDomain,
 	})
+
+	return *gateway
 }
 
 func (mem *MemStore) RegionExist(region string) *MemData {
