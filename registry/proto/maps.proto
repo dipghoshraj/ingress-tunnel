@@ -10,7 +10,7 @@ option go_package = "github.com/dipghoshraj/ingress-tunnel/registry/proto;maps";
 service Maps {
     rpc RegisterGateway (GatewayPutRequest) returns  (GatewayResponse);
     rpc RegisterAgent (AgentConnectionRequest) returns (AgentResponse);
-    rpc ResolveGatewayForAgent (GatewayHandshake) returns (GatewayResponse);
+    rpc ResolveGatewayForAgent (GatewayHandshake) returns (MultipleGateways);
     rpc ResolveGatewayForProxy (GatewayProxy) returns (GatewayResponse);
 }
 
@@ -70,6 +70,11 @@ message AgentResponse {
 
 message GatewayHandshake {
     string region = 1;
+}
+
+message MultipleGateways {
+    repeated GatewayResponse gateways = 1;
+    Error error = 2;
 }
 
 message GatewayProxy {

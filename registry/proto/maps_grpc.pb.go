@@ -33,7 +33,7 @@ const (
 type MapsClient interface {
 	RegisterGateway(ctx context.Context, in *GatewayPutRequest, opts ...grpc.CallOption) (*GatewayResponse, error)
 	RegisterAgent(ctx context.Context, in *AgentConnectionRequest, opts ...grpc.CallOption) (*AgentResponse, error)
-	ResolveGatewayForAgent(ctx context.Context, in *GatewayHandshake, opts ...grpc.CallOption) (*GatewayResponse, error)
+	ResolveGatewayForAgent(ctx context.Context, in *GatewayHandshake, opts ...grpc.CallOption) (*MultipleGateways, error)
 	ResolveGatewayForProxy(ctx context.Context, in *GatewayProxy, opts ...grpc.CallOption) (*GatewayResponse, error)
 }
 
@@ -65,9 +65,9 @@ func (c *mapsClient) RegisterAgent(ctx context.Context, in *AgentConnectionReque
 	return out, nil
 }
 
-func (c *mapsClient) ResolveGatewayForAgent(ctx context.Context, in *GatewayHandshake, opts ...grpc.CallOption) (*GatewayResponse, error) {
+func (c *mapsClient) ResolveGatewayForAgent(ctx context.Context, in *GatewayHandshake, opts ...grpc.CallOption) (*MultipleGateways, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GatewayResponse)
+	out := new(MultipleGateways)
 	err := c.cc.Invoke(ctx, Maps_ResolveGatewayForAgent_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -93,7 +93,7 @@ func (c *mapsClient) ResolveGatewayForProxy(ctx context.Context, in *GatewayProx
 type MapsServer interface {
 	RegisterGateway(context.Context, *GatewayPutRequest) (*GatewayResponse, error)
 	RegisterAgent(context.Context, *AgentConnectionRequest) (*AgentResponse, error)
-	ResolveGatewayForAgent(context.Context, *GatewayHandshake) (*GatewayResponse, error)
+	ResolveGatewayForAgent(context.Context, *GatewayHandshake) (*MultipleGateways, error)
 	ResolveGatewayForProxy(context.Context, *GatewayProxy) (*GatewayResponse, error)
 	mustEmbedUnimplementedMapsServer()
 }
@@ -111,7 +111,7 @@ func (UnimplementedMapsServer) RegisterGateway(context.Context, *GatewayPutReque
 func (UnimplementedMapsServer) RegisterAgent(context.Context, *AgentConnectionRequest) (*AgentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RegisterAgent not implemented")
 }
-func (UnimplementedMapsServer) ResolveGatewayForAgent(context.Context, *GatewayHandshake) (*GatewayResponse, error) {
+func (UnimplementedMapsServer) ResolveGatewayForAgent(context.Context, *GatewayHandshake) (*MultipleGateways, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ResolveGatewayForAgent not implemented")
 }
 func (UnimplementedMapsServer) ResolveGatewayForProxy(context.Context, *GatewayProxy) (*GatewayResponse, error) {
