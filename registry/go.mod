@@ -6,6 +6,7 @@ toolchain go1.24.6
 
 require (
 	github.com/google/btree v1.1.3 // indirect
+	github.com/google/uuid v1.6.0 // indirect
 	golang.org/x/net v0.40.0 // indirect
 	golang.org/x/sys v0.33.0 // indirect
 	golang.org/x/text v0.25.0 // indirect
