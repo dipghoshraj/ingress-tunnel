@@ -45,3 +45,32 @@ func (mem *MemStore) RegionExist(region string) *MemData {
 	return data
 
 }
+
+func (mem *MemStore) GetTopKGateways(region string, k int) []*GatewayData {
+	data := mem.RegionExist(region)
+
+	data.mu.RLock()
+	defer data.mu.RUnlock()
+
+	var result []*GatewayData
+	count := 0
+	data.ranked.Ascend(func(item btree.Item) bool {
+		if count >= k {
+			return false
+		}
+		gi := item.(*GatewayRankItem)
+		result = append(result, data.Gateways[gi.ID])
+		count++
+		return true
+	})
+	return result
+}
+
+func (mem *MemStore) GetGateway(region, gatewayDomain string) (*GatewayData, bool) {
+	data := mem.RegionExist(region)
+
+	data.mu.RLock()
+	defer data.mu.RUnlock()
+	gateway, exist := data.Gateways[gatewayDomain]
+	return gateway, exist
+}
