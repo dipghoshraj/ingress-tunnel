@@ -10,6 +10,21 @@ func (rpc *RPCMap) RegisterAgent(ctx context.Context, req *mapper.AgentConnectio
 	return &mapper.AgentResponse{}, nil
 }
 
-func (rpc *RPCMap) ResolveGatewayForAgent(ctx context.Context, req *mapper.GatewayHandshak) (*mapper.GatewayResponse, error) {
-	return &mapper.GatewayResponse{}, nil
+func (rpc *RPCMap) ResolveGatewayForAgent(ctx context.Context, req *mapper.GatewayHandshake) (*mapper.GatewayResponse, error) {
+
+	gateways := rpc.MemStore.GetTopKGateways("global", 1)
+	if len(gateways) > 0 {
+		gateway := gateways[0]
+		return &mapper.GatewayResponse{
+			GatewayId:     gateway.GatewayID,
+			GatewayDomain: gateway.GatewayDomain,
+			GatewayIp:     gateway.GatewayIP,
+		}, nil
+	}
+	return &mapper.GatewayResponse{
+		Error: &mapper.Error{
+			Code:    2,
+			Message: "no gateway found",
+		},
+	}, nil
 }

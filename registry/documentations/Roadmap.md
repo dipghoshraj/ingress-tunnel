@@ -34,3 +34,24 @@
 * Automated rebalancing.  
 * Fine-grained ACLs.  
 * Integration with AgniStack control plane.
+
+
+
+Gateway Register message 
+
+```bash
+
+{
+    "region": "global",
+    "gateway_ip": "12.34.56.78",
+    "gateway_domain": "global.gateway.agnistack.online",
+    "gateway_port": 4000,
+    "capacity": {
+        "cpu": 1,
+        "bandwidth": 20,
+        "memory": 4096,
+        "storage": 40960
+    }
+}
+
+```
