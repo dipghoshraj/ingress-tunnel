@@ -37,5 +37,24 @@ func (rpc *RPCMap) RegisterGateway(ctx context.Context, req *mapper.GatewayPutRe
 }
 
 func (rpc *RPCMap) ResolveGatewayForProxy(ctx context.Context, req *mapper.GatewayProxy) (*mapper.GatewayResponse, error) {
-	return &mapper.GatewayResponse{}, nil
+
+	gateway, exist := rpc.MemStore.GetGateway(
+		req.AgentDomain,
+		req.Region,
+	)
+
+	if exist {
+		return &mapper.GatewayResponse{
+			GatewayId:     gateway.GatewayID,
+			GatewayDomain: gateway.GatewayDomain,
+			GatewayIp:     gateway.GatewayIP,
+		}, nil
+	}
+	return &mapper.GatewayResponse{
+		Error: &mapper.Error{
+			Code:    2,
+			Message: "gateway not found",
+		},
+	}, nil
+
 }
