@@ -43,7 +43,7 @@ func AgentRegistry(agent_domain string, region string) error {
 
 	config := pkg.Config{
 		Address:     "localhost:8080",
-		Fingerprint: "",
+		Fingerprint: "86f7b7b55c1591c0aafbb9470baff92f1021791ca8f6ee9e372d0986a886be00",
 		Timeout:     5 * time.Second,
 	}
 
