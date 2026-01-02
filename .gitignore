@@ -36,3 +36,5 @@ go.work.sum
 */bin/*
 indraNet/tunnel/agent-tunnel/bin/agniagent
 indraNet/tunnel/agent-tunnel/bin
+
+*.pem

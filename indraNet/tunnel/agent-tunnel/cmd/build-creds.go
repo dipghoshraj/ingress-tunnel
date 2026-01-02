@@ -31,4 +31,6 @@ func init() {
 	buildCredsCmd.Flags().StringVar(&name, "name", "agent-tunnel", "Base name for the generated certificate files")
 	buildCredsCmd.MarkFlagRequired("dns")
 	buildCredsCmd.MarkFlagRequired("name")
+
+	rootCmd.AddCommand(buildCredsCmd)
 }
