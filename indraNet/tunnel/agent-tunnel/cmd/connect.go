@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"agent-tunnel/internal/connections/connects"
+	"agent-tunnel/internal/connections/registry"
 	"context"
 	"log"
 	"net"
@@ -22,13 +23,18 @@ var connectCmd = &cobra.Command{
 	Short: "Connect and authenticate to the agent tunnel",
 	Long:  `This command establishes and authenticates a connection to the agent tunnel, allowing you to interact with the IndraNet network.`,
 	Run: func(cmd *cobra.Command, args []string) {
+
+		log.Println("📝 Registering agent with the registry...")
+		agent, err := registry.AgentRegistry("app.example.com", "global")
+		if err != nil {
+			log.Fatalf("❌ Failed to register agent: %v", err)
+		}
+		log.Printf("✅ Agent registered successfully: ID=%s, Domain=%s", agent.ID, agent.Domain)
 		log.Println("🔌 Connecting to the agent tunnel...")
 
 		client := &connects.TunnelClient{
 			Cfg: connects.ClientConfig{
-				GatewayURL:  gatewayURL,
-				Token:       token,
-				Secret:      secret,
+				GatewayURL:  agent.GatewayAddress,
 				AgentID:     agentID,
 				Portforward: portforward,
 			},
@@ -49,8 +55,6 @@ var connectCmd = &cobra.Command{
 func init() {
 
 	connectCmd.Flags().StringVar(&gatewayURL, "gateway", "", "Gateway WebSocket URL (wss://)")
-	connectCmd.Flags().StringVar(&token, "token", "", "Auth token")
-	connectCmd.Flags().StringVar(&secret, "secret", "", "HMAC secret key")
 	connectCmd.Flags().StringVar(&agentID, "id", "", "Agent ID")
 	connectCmd.Flags().StringVar(&portforward, "port", "", "local port to forward")
 
