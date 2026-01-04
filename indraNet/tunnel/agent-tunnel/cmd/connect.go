@@ -11,11 +11,9 @@ import (
 )
 
 var (
-	gatewayURL  string
-	token       string
-	secret      string
-	agentID     string
 	portforward string
+	agentDomain string
+	region      string
 )
 
 var connectCmd = &cobra.Command{
@@ -25,7 +23,7 @@ var connectCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 
 		log.Println("📝 Registering agent with the registry...")
-		agent, fingerprint, err := registry.AgentRegistry("app.example.com", "global")
+		agent, fingerprint, err := registry.AgentRegistry(agentDomain, region)
 		if err != nil {
 			log.Fatalf("❌ Failed to register agent: %v", err)
 		}
@@ -35,7 +33,7 @@ var connectCmd = &cobra.Command{
 		client := &connects.TunnelClient{
 			Cfg: connects.ClientConfig{
 				GatewayURL:  agent.GatewayAddress,
-				AgentID:     agentID,
+				AgentID:     agent.ID,
 				Portforward: portforward,
 				VFID:        fingerprint,
 			},
@@ -55,15 +53,13 @@ var connectCmd = &cobra.Command{
 
 func init() {
 
-	connectCmd.Flags().StringVar(&gatewayURL, "gateway", "", "Gateway WebSocket URL (wss://)")
-	connectCmd.Flags().StringVar(&agentID, "id", "", "Agent ID")
 	connectCmd.Flags().StringVar(&portforward, "port", "", "local port to forward")
+	connectCmd.Flags().StringVar(&agentDomain, "domain", "", "Agent domain")
+	connectCmd.Flags().StringVar(&region, "region", "", "Region of the gateway")
 
-	connectCmd.MarkFlagRequired("gateway")
-	connectCmd.MarkFlagRequired("token")
-	connectCmd.MarkFlagRequired("secret")
-	connectCmd.MarkFlagRequired("id")
 	connectCmd.MarkFlagRequired("port")
+	connectCmd.MarkFlagRequired("domain")
+	connectCmd.MarkFlagRequired("region")
 
 	rootCmd.AddCommand(connectCmd)
 

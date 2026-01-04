@@ -16,7 +16,7 @@ import (
 )
 
 func AgentFingerprint() (string, error) {
-	permfile := "certs/client.pem"
+	permfile := "client.pem"
 	certPEM, err := os.ReadFile(permfile)
 	if err != nil {
 		return "", fmt.Errorf("failed to read certificate file: %v", err)
