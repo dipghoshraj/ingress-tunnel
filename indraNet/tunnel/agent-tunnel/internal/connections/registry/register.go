@@ -39,7 +39,7 @@ func AgentFingerprint() (string, error) {
 	return fingerprint, nil
 }
 
-func AgentRegistry(agent_domain string, region string) (mp.Agent, error) {
+func AgentRegistry(agent_domain string, region string) (mp.Agent, string, error) {
 
 	config := pkg.Config{
 		Address:     "localhost:8080",
@@ -49,18 +49,18 @@ func AgentRegistry(agent_domain string, region string) (mp.Agent, error) {
 
 	client, err := mp.NewSdkOperation(config)
 	if err != nil {
-		return mp.Agent{}, fmt.Errorf("create memsdk client: %w", err)
+		return mp.Agent{}, "", fmt.Errorf("create memsdk client: %w", err)
 	}
 
 	log.Printf("finding the gateways in %s region", region)
 
 	gateways, err := client.ResolveGatewayForAgent(context.Background(), region)
 	if err != nil {
-		return mp.Agent{}, fmt.Errorf("resolve gateway: %w", err)
+		return mp.Agent{}, "", fmt.Errorf("resolve gateway: %w", err)
 	}
 
 	if len(gateways) == 0 {
-		return mp.Agent{}, fmt.Errorf("no gateways found")
+		return mp.Agent{}, "", fmt.Errorf("no gateways found")
 	}
 
 	gw := gateways[0]
@@ -68,15 +68,15 @@ func AgentRegistry(agent_domain string, region string) (mp.Agent, error) {
 
 	fingerprint, err := AgentFingerprint()
 	if err != nil {
-		return mp.Agent{}, fmt.Errorf("get agent fingerprint: %w", err)
+		return mp.Agent{}, "", fmt.Errorf("get agent fingerprint: %w", err)
 	}
 	log.Printf("Using Agent Fingerprint: %s\n", fingerprint)
 
 	agent, err := client.ConnectAgent(context.Background(), agent_domain, gw.ID, gw.Address, fingerprint, region)
 	if err != nil {
-		return mp.Agent{}, fmt.Errorf("connect agent: %w", err)
+		return mp.Agent{}, "", fmt.Errorf("connect agent: %w", err)
 	}
 
 	log.Printf("Connected Agent: %s (%s)\n", agent.ID, agent.Domain)
-	return agent, nil
+	return agent, fingerprint, nil
 }

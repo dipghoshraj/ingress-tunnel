@@ -14,6 +14,7 @@ func (c *TunnelClient) Handshake(ctx context.Context) error {
 		AgentId:   c.Cfg.AgentID,
 		Timestamp: timestamp,
 		Nonce:     nonce,
+		Signature: c.Cfg.VFID,
 	}
 
 	env := &proto.Envelope{

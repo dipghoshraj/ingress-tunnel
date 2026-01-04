@@ -25,7 +25,7 @@ var connectCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 
 		log.Println("📝 Registering agent with the registry...")
-		agent, err := registry.AgentRegistry("app.example.com", "global")
+		agent, fingerprint, err := registry.AgentRegistry("app.example.com", "global")
 		if err != nil {
 			log.Fatalf("❌ Failed to register agent: %v", err)
 		}
@@ -37,6 +37,7 @@ var connectCmd = &cobra.Command{
 				GatewayURL:  agent.GatewayAddress,
 				AgentID:     agentID,
 				Portforward: portforward,
+				VFID:        fingerprint,
 			},
 			Close:   make(chan struct{}),
 			Streams: make(map[string]net.Conn),
