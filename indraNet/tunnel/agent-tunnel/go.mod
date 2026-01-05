@@ -4,7 +4,7 @@ go 1.25.5
 
 require (
 	github.com/Purple-House/mem-sdk/certengine v0.0.0-20260102195351-cc1a9529ded9
-	github.com/Purple-House/mem-sdk/memsdk v0.0.0-20260104195404-6443f82102ff
+	github.com/Purple-House/mem-sdk/memsdk v0.0.0-20260105184353-8f197458eb7f
 	github.com/gorilla/websocket v1.5.3
 	github.com/spf13/cobra v1.9.1
 	google.golang.org/protobuf v1.36.11

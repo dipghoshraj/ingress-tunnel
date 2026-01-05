@@ -54,7 +54,7 @@ func AgentRegistry(agent_domain string, region string) (mp.Agent, string, error)
 
 	log.Printf("finding the gateways in %s region", region)
 
-	gateways, err := client.ResolveGatewayForAgent(context.Background(), region)
+	gateways, err := client.GetGatewayInfo(context.Background(), region)
 	if err != nil {
 		return mp.Agent{}, "", fmt.Errorf("resolve gateway: %w", err)
 	}
@@ -72,7 +72,7 @@ func AgentRegistry(agent_domain string, region string) (mp.Agent, string, error)
 	}
 	log.Printf("Using Agent Fingerprint: %s\n", fingerprint)
 
-	agent, err := client.ConnectAgent(context.Background(), agent_domain, gw.ID, gw.Address, fingerprint, region)
+	agent, err := client.ConnectAgent(context.Background(), agent_domain, gw.ID, fingerprint, region)
 	if err != nil {
 		return mp.Agent{}, "", fmt.Errorf("connect agent: %w", err)
 	}

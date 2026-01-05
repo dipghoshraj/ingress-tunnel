@@ -4,6 +4,7 @@ import (
 	"agent-tunnel/internal/connections/connects"
 	"agent-tunnel/internal/connections/registry"
 	"context"
+	"fmt"
 	"log"
 	"net"
 
@@ -29,10 +30,13 @@ var connectCmd = &cobra.Command{
 		}
 		log.Printf("✅ Agent registered successfully: ID=%s, Domain=%s", agent.ID, agent.Domain)
 		log.Println("🔌 Connecting to the agent tunnel...")
+		gatewayConntion := fmt.Sprintf("%s:%d", agent.GatewayIP, agent.WssPort)
+
+		log.Println("Connecting to gatewayURL", gatewayConntion)
 
 		client := &connects.TunnelClient{
 			Cfg: connects.ClientConfig{
-				GatewayURL:  agent.GatewayAddress,
+				GatewayURL:  gatewayConntion,
 				AgentID:     agent.ID,
 				Portforward: portforward,
 				VFID:        fingerprint,

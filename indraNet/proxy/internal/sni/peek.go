@@ -1,6 +1,7 @@
 package sni
 
 import (
+	"log"
 	"net"
 	"strings"
 )
@@ -13,6 +14,8 @@ func PeekSNI(conn net.Conn) (string, net.Conn, error) {
 	}
 	serverName, err := ExtractHostFromHTTPRequest(buf[:n])
 	// serverName, err := ExtractSNIFromRequest(buf[:n]) this is for TLS SNI extraction in current context request is flowing over
+
+	log.Printf("found the server name domain: %s", serverName)
 	domain := strings.Split(serverName, ".")
 	if len(domain) == 0 {
 		return "", nil, nil // No SNI found
