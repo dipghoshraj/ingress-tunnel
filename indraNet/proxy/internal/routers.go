@@ -5,14 +5,20 @@ import (
 	"cosmo-proxy/internal/registry"
 	"fmt"
 	"log"
+
+	"github.com/Purple-House/mem-sdk/memsdk/maps"
 )
 
 func GetRouter(addr string) (string, error) {
 
 	registy := registry.GetClient()
-
+	log.Println("find the gateway ", addr)
 	gateway, err := registy.GetAgentProxyMapping(context.Background(), "global", addr)
 	if err != nil {
+		return "", fmt.Errorf("key %s not found in Redis", addr)
+	}
+
+	if gateway == (maps.Gateway{}) {
 		return "", fmt.Errorf("key %s not found in Redis", addr)
 	}
 
