@@ -34,8 +34,8 @@ func main() {
 	}()
 
 	go func() {
-		fmt.Println("Server started at :50051")
-		log.Fatal(http.ListenAndServe(":50051", nil))
+		fmt.Println("ws started at :8082")
+		log.Fatal(http.ListenAndServe(":8082", nil))
 	}()
 
 	quit := make(chan os.Signal, 1)
