@@ -16,7 +16,7 @@ import (
 )
 
 func HandleRequest(w http.ResponseWriter, r *http.Request) {
-	appID := extractDomain(r.Host)
+	appID := r.Host
 
 	agent, ok := session.Registry.GetSession(appID)
 	if !ok {

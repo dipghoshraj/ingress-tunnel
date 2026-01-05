@@ -11,7 +11,7 @@ func (c *TunnelClient) Handshake(ctx context.Context) error {
 	timestamp := time.Now().Unix()
 
 	connectReq := &proto.ConnectRequest{
-		AgentId:   c.Cfg.AgentID,
+		AgentId:   c.Cfg.AgentDomain,
 		Timestamp: timestamp,
 		Nonce:     nonce,
 		Signature: c.Cfg.VFID,

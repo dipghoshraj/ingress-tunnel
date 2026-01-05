@@ -38,6 +38,7 @@ var connectCmd = &cobra.Command{
 			Cfg: connects.ClientConfig{
 				GatewayURL:  gatewayConntion,
 				AgentID:     agent.ID,
+				AgentDomain: agentDomain,
 				Portforward: portforward,
 				VFID:        fingerprint,
 			},
