@@ -1,148 +1,120 @@
-# Agnistack Ingress
+# Agnistack Ingress  
+### Launching April 2026
 
-> **Tunnel, route, and expose your apps — securely and simply. Built for self-hosters, edge compute, and dev teams.**
+<p align="center">
+  <img src="https://readme-typing-svg.demolab.com?font=Inter&size=22&pause=1200&color=F97316&center=true&vCenter=true&width=700&lines=Secure+Ingress+Without+Port+Forwarding;Distributed+by+Design;Open+Source+and+Self-Hostable" />
+</p>
 
-<!-- 📢 Announcement Section Start -->
-## 📢 Announcement
-
-We’re excited to share that a **new and more secure version of Agnistack** is currently in development and will be released in the coming months!  
-This update will include **enhanced security**, **richer observability**, and **powerful management features** — all while staying true to our open-source roots.
-
-Stay tuned for updates by watching this repo or following us in discord [https://discordapp.com/channels/1273907702355066961/1393671943286165665](#).
-<!-- 📢 Announcement Section End -->
-
-Agnistack is a lightweight, self-hostable, distributed ingress platform that lets you expose services running behind NAT/firewalls using outbound tunnels — without port forwarding, complex VPNs, or cloud lock-in.
-
-This is the **Open Source Core** of Agnistack — a minimal but working version designed for developers and builders.
+<p align="center">
+  <img src="https://img.shields.io/badge/Status-Launching%20April%202026-orange" />
+  <img src="https://img.shields.io/badge/Edition-Open%20Source%20Core-blue" />
+  <img src="https://img.shields.io/badge/Architecture-Distributed-success" />
+</p>
 
 ---
 
-Agnistack is a lightweight, self-hostable, distributed ingress platform that lets you expose services running behind NAT/firewalls using outbound tunnels — without port forwarding, complex VPNs, or cloud lock-in.
-
-This is the **Open Source Core** of Agnistack — a minimal but working version designed for developers and builders.
-
----
-
-## ✨ Features (Open Source Edition)
-
-✅ Self-hosted reverse proxy layer  
-✅ Subdomain-based routing  
-✅ Distributed proxy-to-gateway routing via registry  
-✅ Secure outbound agent socket tunnel  
-✅ Unified agent lifecycle  
-✅ Works behind NAT/firewalls  
+> **Tunnel, route, and expose applications — securely and without central control.**  
+> Built for self-hosted infrastructure, edge environments, and teams that value ownership.
 
 ---
 
-## ❗ What’s Not Included (Yet)
+## Announcement
 
-This OSS release is intentionally minimal. Features below are in development and will be included in the full platform:
+A **new and more capable version of Agnistack** is currently under active development and scheduled for release in **April 2026**.
 
-🚫 Health checks for gateways/proxies  
-🚫 Dynamic router discovery  
-🚫 Integrated observability (tracing, logs, metrics)  
-🚫 Web dashboard / UI  
-🚫 Agent RBAC / ACL policies  
-🚫 Auto TLS / DNS sync  
+This release represents a major step forward in both **capabilities and philosophy**, with a focus on:
 
-<!-- Want early access to the full version? [Join our waitlist](#) or follow [@agnistack](#) for updates. -->
+- Stronger security primitives  
+- Better visibility and control  
+- A more decentralized and resilient network model  
 
----
+All while remaining **open source** and **self-hostable**.
 
-## 📦 Architecture Overview
-
-```mermaid
-graph LR
-    Client -->|DNS| Proxy
-    Proxy -->|Lookup| Registry
-    Registry --> Proxy
-    Proxy -->|Forward Request| Gateway
-    Gateway -->|Outbound Socket| Agent
-    Agent --> Gateway --> Proxy --> Client
-```
+Community & updates:
+- Watch this repository  
+- Join the discussion on Discord:  
+  https://discordapp.com/channels/1273907702355066961/1393671943286165665
 
 ---
 
-## 🚀 How to Start the Services
+## What is Agnistack?
 
-### Prerequisites
+**Agnistack** is a lightweight, distributed ingress platform designed to expose services running behind NATs and firewalls using **outbound connections only**.
 
-- Go 1.21 or later
-- Redis server running on `localhost:6379` (or configure `REDIS_ADDR` and `REDIS_PASSWORD` environment variables)
+Instead of relying on cloud-managed ingress, centralized brokers, or pub/sub systems, Agnistack forms a **cooperative network of proxies, gateways, agents, and registries** that dynamically discover and route traffic.
 
-### 1. Start Redis (Registry/Cache)
+It removes the need for:
 
-The proxy service requires Redis for routing registry and caching:
+- Port forwarding  
+- VPN-based exposure  
+- Centralized ingress providers  
 
-```bash
-# Using Docker
-docker run -d -p 6379:6379 redis:alpine
+Agnistack is particularly suited for:
 
-# Or using a local Redis installation
-redis-server
-```
+- Self-hosted and on-prem environments  
+- Edge and remote deployments  
+- Internal platforms and developer tooling  
 
-### 2. Start the Proxy Service
+---
 
-The proxy handles incoming requests and routes them to the appropriate gateway:
+## Discovery via Registry Mesh
 
-```bash
-cd indraNet/proxy
-go run main.go
-```
+A **distributed registry mesh ** handles service discovery in Agnistack.
 
-**Default port**: `80`
+There is no central controller and no pub/sub broker. Instead:
 
-### 3. Start the Gateway Tunnel Service
+- Registries form a **mesh network**
+- Routing information is **replicated and queried deterministically**
+- Proxies and gateways resolve routes through the registry mesh
+- Failure of individual nodes does not compromise the network
 
-The gateway manages WebSocket connections from agents and serves HTTP requests:
+This model reduces operational complexity, removes single points of failure, and aligns with Agnistack’s long-term goal of becoming a **protocol-level primitive** rather than a managed service.
 
-```bash
-cd indraNet/tunnel/gateway-tunnel
-go run main.go
-```
+---
 
-**Default ports**: 
-- `8080` - HTTP server for gateway management
-- `50051` - WebSocket server for agent connections
+## Open Source Core
 
-### 4. Start the Agent Tunnel
+This repository contains the **Open Source Core** of Agnistack.
 
-The agent establishes a secure tunnel to the gateway and forwards traffic to your local service:
+The OSS Core provides a **minimal but functional implementation** of the Agnistack model, intended for developers who want to:
 
-```bash
-cd indraNet/tunnel/agent-tunnel
-go run main.go connect --gateway localhost:50051 --id app1 --secret abc --token xyz --port 5000
-```
+- Understand the system architecture  
+- Operate Agnistack in self-managed environments  
+- Extend or experiment with distributed ingress concepts  
 
-**Parameters**:
-- `--gateway`: Gateway WebSocket URL (e.g., `localhost:50051`)
-- `--id`: Unique agent identifier
-- `--secret`: HMAC secret key for authentication
-- `--token`: Authentication token
-- `--port`: Local port to forward (where your application is running)
+More advanced capabilities are planned as part of the future release plans.
 
-### 5. Testing the Setup
+---
 
-Once all services are running:
+## Features (Open Source Edition)
 
-1. Make sure your application is running on the port specified in the agent (e.g., port 5000)
-2. Configure DNS/hosts to point your domain to the proxy (port 80)
-3. Test connectivity through the tunnel
+- Self-hosted reverse proxy  
+- domain-based routing  
+- Distributed routing via registry mesh  
+- Secure outbound tunnels between agents and gateways  
+- Unified agent lifecycle management  
+- Operates fully behind NATs and firewalls  
 
-### Service Dependencies
+---
 
-```
-Redis (Registry) <-- Proxy <-- Gateway <-- Agent <-- Your App
-```
+## Not Included Yet
 
-### Environment Variables
+This Open Source release is intentionally scoped.  
+The following capabilities are under active development:
 
-- `REDIS_ADDR` - Redis server address (default: `localhost:6379`)
-- `REDIS_PASSWORD` - Redis password (default: empty)
+- Health-aware routing and node scoring  
+- Integrated observability (logs, metrics, tracing)  
+- Fine-grained access control and policies  
+- Automated TLS and DNS coordination  
 
-### Development Notes
+---
 
-- The proxy runs on port 80 and requires appropriate permissions
-- All services support graceful shutdown with `Ctrl+C`
-- Logs are written to stdout for debugging
+## Project Status
+
+- Actively developed  
+- Open Source Core available  
+- Full platform release planned for **April 2026**
+
+---
+
+**Agnistack is an attempt to rethink ingress — as infrastructure you own, networks you compose, and trust you can verify.**
