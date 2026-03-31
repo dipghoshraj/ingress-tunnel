@@ -1,120 +1,117 @@
-# Agnistack Ingress  
-### Launching April 2026
+# agni-tunnels
 
-<p align="center">
-  <img src="https://readme-typing-svg.demolab.com?font=Inter&size=22&pause=1200&color=F97316&center=true&vCenter=true&width=700&lines=Secure+Ingress+Without+Port+Forwarding;Distributed+by+Design;Open+Source+and+Self-Hostable" />
-</p>
+agni-tunnels is a Go-based reverse tunneling stack that lets a private/local service be exposed through an edge router using TLS + SNI-based routing.
 
-<p align="center">
-  <img src="https://img.shields.io/badge/Status-Launching%20April%202026-orange" />
-  <img src="https://img.shields.io/badge/Edition-Open%20Source%20Core-blue" />
-  <img src="https://img.shields.io/badge/Architecture-Distributed-success" />
-</p>
+At a high level it has three binaries:
 
----
+- **agni-agent**: runs near your private app and opens a persistent gRPC tunnel to a router.
+- **agni-router**: accepts edge TLS traffic, maps SNI -> agent session, and relays bytes over gRPC.
+- **agni-nova**: a front-door TCP proxy that reads client SNI and forwards to the right router/gateway address discovered from a seeder service.
 
-> **Tunnel, route, and expose applications — securely and without central control.**  
-> Built for self-hosted infrastructure, edge environments, and teams that value ownership.
+The project currently uses a shared config file (`agni-config.yaml`) and external service discovery/identity APIs from `mem-sdk`.
 
----
+## How the system works
 
-## Announcement
+### 1) Discovery and registration
 
-A **new and more capable version of Agnistack** is currently under active development and scheduled for release in **April 2026**.
+1. The **router** starts and reads `Router` settings from `agni-config.yaml`.
+2. It computes its certificate fingerprint and registers itself in the seeder (`SeedGatway`).
+3. The **agent** starts, reads `Agent` settings, asks the seeder for a router/gateway in a region, and registers itself.
+4. The agent receives routing metadata including gateway address/ports and connects over gRPC with mTLS-like identity checks based on certificate fingerprint.
 
-This release represents a major step forward in both **capabilities and philosophy**, with a focus on:
+### 2) Tunnel establishment
 
-- Stronger security primitives  
-- Better visibility and control  
-- A more decentralized and resilient network model  
+1. Agent opens `AgniTunnel.Connect` bidirectional stream to router.
+2. First message is `ConnectRequest`; router replies with `ConnectAck`.
+3. Router stores the agent stream in an in-memory session registry keyed by mapped domain.
 
-All while remaining **open source** and **self-hostable**.
+### 3) Data path (client -> local app)
 
-Community & updates:
-- Watch this repository  
-- Join the discussion on Discord:  
-  https://discordapp.com/channels/1273907702355066961/1393671943286165665
+1. External client reaches nova (or router directly) with TLS SNI (example: `agni.local.internal`).
+2. Router-side TCP proxy (`RouterServer`) accepts raw TCP, peeks SNI, and finds matching agent session.
+3. Router sends `TunnelOpen{connection_id}` to agent.
+4. Agent dials local app on `localhost:<forward>` from config.
+5. Router and agent exchange `TunnelData` frames over gRPC, forwarding bytes both directions until close/error.
 
----
+## Repository layout
 
-## What is Agnistack?
+- `agni-agent/`
+  - CLI app (`connect`, `gen-creds`, `version`) with Cobra.
+  - `pkg/bridge`: config loading, seeder/registry calls, cert fingerprint helpers.
+  - `pkg/rpc`: gRPC client stream lifecycle and bidirectional forwarding logic.
+  - `pkg/connector`: local TCP connection to your private app.
 
-**Agnistack** is a lightweight, distributed ingress platform designed to expose services running behind NATs and firewalls using **outbound connections only**.
+- `agni-router/`
+  - gRPC server with TLS cert loading and custom peer certificate validation.
+  - Registers itself in seeder and keeps in-memory agent session/domain maps.
+  - `server/`: TCP listener that receives inbound SNI traffic and hooks it to agent stream.
 
-Instead of relying on cloud-managed ingress, centralized brokers, or pub/sub systems, Agnistack forms a **cooperative network of proxies, gateways, agents, and registries** that dynamically discover and route traffic.
+- `agni-nova/`
+  - Lightweight TCP proxy.
+  - Peeks SNI and asks seeder for the correct gateway/router address.
+  - Pipes bytes between client and selected backend router.
 
-It removes the need for:
+- `example/`
+  - Sample Flask + Gunicorn app behind nginx TLS.
+  - Useful for simulating the local service that agent forwards to.
 
-- Port forwarding  
-- VPN-based exposure  
-- Centralized ingress providers  
+- `agni-config.yaml`
+  - Shared config for Agent, Router, and Nova.
 
-Agnistack is particularly suited for:
+## Configuration quick notes
 
-- Self-hosted and on-prem environments  
-- Edge and remote deployments  
-- Internal platforms and developer tooling  
+`agni-config.yaml` currently defines:
 
----
+- `Agent.forward`: local port agent connects to (e.g. `5050`).
+- `Agent.domain`: domain used for mapping.
+- `Router.rpc_port`: router gRPC tunnel port.
+- `Router.proxy_port`: router inbound proxy/TCP listener port.
+- `certs` folders for agent/router certificate files.
+- `Seeder.address` + `Seeder.fingureprint` for service discovery/identity checks.
 
-## Discovery via Registry Mesh
+## Build commands
 
-A **distributed registry mesh ** handles service discovery in Agnistack.
+Use the Makefile targets:
 
-There is no central controller and no pub/sub broker. Instead:
+```bash
+make build-agent
+make router-certs
+make build-router
+make build-nova
+```
 
-- Registries form a **mesh network**
-- Routing information is **replicated and queried deterministically**
-- Proxies and gateways resolve routes through the registry mesh
-- Failure of individual nodes does not compromise the network
+Outputs are placed in `bin/` with `.exe` suffix in current Make targets.
 
-This model reduces operational complexity, removes single points of failure, and aligns with Agnistack’s long-term goal of becoming a **protocol-level primitive** rather than a managed service.
+## Typical local run flow
 
----
+1. Prepare/update `agni-config.yaml` for your environment.
+2. Generate router certs:
+   ```bash
+   make router-certs
+   ```
+3. Generate agent certs:
+   ```bash
+   cd agni-agent
+   go run . gen-creds --dns <agent-id-or-domain> --name client
+   ```
+4. Start router:
+   ```bash
+   make build-router && ./bin/agni-router.exe
+   ```
+5. Start your local app on `localhost:<Agent.forward>`.
+6. Start agent:
+   ```bash
+   make build-agent && ./bin/agni-agent.exe connect
+   ```
+7. (Optional) Start nova front proxy:
+   ```bash
+   make build-nova && ./bin/agni-nova-proxy.exe
+   ```
 
-## Open Source Core
+## Current caveats / things to know
 
-This repository contains the **Open Source Core** of Agnistack.
+- Some naming/typos exist in code (`fingureprint`, `ProxtPort`, etc.) but are consistent with config tags.
+- Router `Connect` currently ends with `select {}` (placeholder), so stream lifecycle cleanup is minimal.
+- Authentication logic is partially stubbed (`checkConnect` always true), while cert fingerprint checks are active.
+- Error handling is still evolving in several places.
 
-The OSS Core provides a **minimal but functional implementation** of the Agnistack model, intended for developers who want to:
-
-- Understand the system architecture  
-- Operate Agnistack in self-managed environments  
-- Extend or experiment with distributed ingress concepts  
-
-More advanced capabilities are planned as part of the future release plans.
-
----
-
-## Features (Open Source Edition)
-
-- Self-hosted reverse proxy  
-- domain-based routing  
-- Distributed routing via registry mesh  
-- Secure outbound tunnels between agents and gateways  
-- Unified agent lifecycle management  
-- Operates fully behind NATs and firewalls  
-
----
-
-## Not Included Yet
-
-This Open Source release is intentionally scoped.  
-The following capabilities are under active development:
-
-- Health-aware routing and node scoring  
-- Integrated observability (logs, metrics, tracing)  
-- Fine-grained access control and policies  
-- Automated TLS and DNS coordination  
-
----
-
-## Project Status
-
-- Actively developed  
-- Open Source Core available  
-- Full platform release planned for **April 2026**
-
----
-
-**Agnistack is an attempt to rethink ingress — as infrastructure you own, networks you compose, and trust you can verify.**
