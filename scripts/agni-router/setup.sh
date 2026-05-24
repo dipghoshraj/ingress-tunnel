@@ -53,51 +53,6 @@ fi
 chmod +x "${INSTALL_PATH}"
 info "Binary installed at ${INSTALL_PATH}"
 
-# ── 3. Write config skeleton ──────────────────────────────────────────────────
-heading "Step 3 — Writing config skeleton"
-if [[ -f "${CONFIG_FILE}" ]]; then
-  warn "Config file already exists at ${CONFIG_FILE} — skipping overwrite."
-  warn "Delete it manually and re-run if you want a fresh skeleton."
-else
-  cat > "${CONFIG_FILE}" << 'EOF'
-version: v1
-
-Router:
-  # Friendly name used in logs and cert metadata.
-  name: "agni-Router"
-
-  # Public IP address of this server (used in the TLS certificate SAN).
-  router_ip: "YOUR_SERVER_PUBLIC_IP"
-
-  # Port the gRPC tunnel listens on (agents connect here).
-  rpc_port: "9000"
-
-  # Port the TCP proxy listens on (edge traffic arrives here).
-  proxy_port: "8000"
-
-  # Directory where generated TLS certs (server.pem / server-key.pem) are stored.
-  # Must match the value used at runtime. Path is relative to this config file's
-  # working directory, or use an absolute path.
-  certs: "./certs"
-
-  # Routing region tag — match this with the agent's region field.
-  region: "global"
-
-  # Domain / hostname placed in the TLS certificate SAN (CN).
-  dns: "YOUR_ROUTER_DOMAIN_OR_IP"
-
-  Seeder:
-    # Host:port of the seeder (mem-sdk) service.
-    address: "YOUR_SEEDER_HOST:PORT"
-
-    # SHA-256 hex fingerprint of the seeder's TLS certificate.
-    # Retrieve with: openssl s_client -connect <host>:<port> </dev/null 2>/dev/null \
-    #   | openssl x509 -fingerprint -sha256 -noout | cut -d= -f2 | tr -d ':'
-    fingureprint: "YOUR_SEEDER_TLS_FINGERPRINT_HEX"
-EOF
-  info "Config skeleton written to ${CONFIG_FILE}"
-fi
-
 # ── 4. Prompt user to edit config ─────────────────────────────────────────────
 heading "Step 4 — Edit the config"
 echo ""
@@ -117,7 +72,15 @@ read -rp "Press ENTER once you have saved the config to generate TLS certificate
 heading "Step 5 — Generating TLS certificates"
 cd "${SERVICE_DIR}"
 "${INSTALL_PATH}" gen-certs
-info "Certificates written to ${CERTS_DIR}/"
+# Move certificates to the certs subdirectory
+if [[ -f "server.pem" ]] && [[ -f "server-key.pem" ]]; then
+  mv server.pem "${CERTS_DIR}/"
+  mv server-key.pem "${CERTS_DIR}/"
+  info "Certificates moved to ${CERTS_DIR}/"
+else
+  error "Certificate generation failed: server.pem or server-key.pem not found"
+  exit 1
+fi
 
 # ── 6. Print next steps ───────────────────────────────────────────────────────
 heading "Setup complete!"
